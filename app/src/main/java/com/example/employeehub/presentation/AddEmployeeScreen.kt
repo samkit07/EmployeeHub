@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,8 @@ fun AddEmployeeScreen(
             },
             label = { Text("Name") },
             isError = isNameError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words)
+            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words,
+                imeAction = ImeAction.Next)
         )
         if (isNameError.value) {
             Text(text = "Name is required", color = Color.Red)
@@ -68,7 +70,8 @@ fun AddEmployeeScreen(
                 isEmailError.value = false
             },
             label = { Text("Email") },
-            isError = isEmailError.value
+            isError = isEmailError.value,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         if (isEmailError.value) {
             Text(text = "Invalid email format", color = Color.Red)
@@ -82,7 +85,8 @@ fun AddEmployeeScreen(
             },
             label = { Text("Phone Number") },
             isError = isPhoneNumberError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next)
             )
         if (isPhoneNumberError.value) {
             Text(text = "Invalid phone number format", color = Color.Red)
@@ -96,7 +100,8 @@ fun AddEmployeeScreen(
             },
             label = { Text("Designation") },
             isError = isDesignationError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words)
+            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words,
+                imeAction = ImeAction.Next)
         )
         if (isDesignationError.value) {
             Text(text = "Designation is required", color = Color.Red)
@@ -110,7 +115,8 @@ fun AddEmployeeScreen(
             },
             label = { Text("Department") },
             isError = isDepartmentError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words)
+            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words,
+                imeAction = ImeAction.Done)
         )
         if (isDepartmentError.value) {
             Text(text = "Department is required", color = Color.Red)
