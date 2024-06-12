@@ -57,6 +57,9 @@ fun EditEmployeeScreen(
             onValueChange = {
                 nameValue.value = it
                 isNameError.value = false
+                if (!isValidCharacters(it)) {
+                    isNameError.value = true
+                }
             },
             label = { Text("Name") },
             isError = isNameError.value,
@@ -64,7 +67,7 @@ fun EditEmployeeScreen(
                 imeAction = ImeAction.Next)
         )
         if (isNameError.value) {
-            Text(text = "Name is required", color = Color.Red)
+            Text(text = "Valid Name is required", color = Color.Red)
         }
 
         OutlinedTextField(
@@ -84,8 +87,13 @@ fun EditEmployeeScreen(
         OutlinedTextField(
             value = phoneNumberValue.value,
             onValueChange = {
-                phoneNumberValue.value = it
-                isPhoneNumberError.value = false
+                if (it.length <= 10 && it[0] in listOf('6', '7', '8', '9')){
+                    phoneNumberValue.value = it
+                    isPhoneNumberError.value = false
+                    if (!it.isValidPhoneNumber()) {
+                        isPhoneNumberError.value = true
+                    }
+                }
             },
             label = { Text("Phone Number") },
             isError = isPhoneNumberError.value,
@@ -96,32 +104,33 @@ fun EditEmployeeScreen(
             Text(text = "Invalid phone number format", color = Color.Red)
         }
 
-        OutlinedTextField(
-            value = designationValue.value,
-            onValueChange = {
-                designationValue.value = it
-                isDesignationError.value = false
-            },
-            label = { Text("Designation") },
-            isError = isDesignationError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words,
-                imeAction = ImeAction.Next)
+        val designationList = listOf("Select Designation", "FrontEnd Developer", "Backend Developer", "iOS Developer", "Android Developer")
+
+
+        SampleSpinner(
+            designationValue,
+            "Designation",
+            designationList,
+            preselected = designationValue.value,
+            onSelectionChanged = { selected -> /* do something with selected */ },
+            isDesignationError
         )
+
         if (isDesignationError.value) {
             Text(text = "Designation is required", color = Color.Red)
         }
 
-        OutlinedTextField(
-            value = departmentValue.value,
-            onValueChange = {
-                departmentValue.value = it
-                isDepartmentError.value = false
-            },
-            label = { Text("Department") },
-            isError = isDepartmentError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words,
-                imeAction = ImeAction.Done)
+        val departmentList = listOf("Select Department", "Android", "iOS", "Web")
+
+        SampleSpinner(
+            departmentValue,
+            "Department",
+            departmentList,
+            preselected = departmentValue.value,
+            onSelectionChanged = { selected -> /* do something with selected */ },
+            isDepartmentError
         )
+
         if (isDepartmentError.value) {
             Text(text = "Department is required", color = Color.Red)
         }
@@ -160,10 +169,10 @@ fun EditEmployeeScreen(
                     if (!phoneNumberValue.value.isValidPhoneNumber()) {
                         isPhoneNumberError.value = true
                     }
-                    if (designationValue.value.isEmpty()) {
+                    if (designationValue.value.isEmpty() || designationValue.value.contains("Select Designation")) {
                         isDesignationError.value = true
                     }
-                    if (departmentValue.value.isEmpty()) {
+                    if (departmentValue.value.isEmpty() || departmentValue.value.contains("Select Department")) {
                         isDepartmentError.value = true
                     }
                 }

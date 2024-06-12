@@ -1,14 +1,25 @@
 package com.example.employeehub.presentation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +64,9 @@ fun AddEmployeeScreen(
             onValueChange = {
                 nameValue.value = it
                 isNameError.value = false
+                if (!isValidCharacters(it)) {
+                    isNameError.value = true
+                }
             },
             label = { Text("Name") },
             isError = isNameError.value,
@@ -60,7 +74,7 @@ fun AddEmployeeScreen(
                 imeAction = ImeAction.Next)
         )
         if (isNameError.value) {
-            Text(text = "Name is required", color = Color.Red)
+            Text(text = "Valid Name is required", color = Color.Red)
         }
 
         OutlinedTextField(
@@ -80,8 +94,14 @@ fun AddEmployeeScreen(
         OutlinedTextField(
             value = phoneNumberValue.value,
             onValueChange = {
-                phoneNumberValue.value = it
-                isPhoneNumberError.value = false
+                if (it.length <= 10){
+                    if (it.length == 0) phoneNumberValue.value = it
+                    else if (it[0] in listOf('6', '7', '8', '9')) phoneNumberValue.value = it
+                    isPhoneNumberError.value = false
+                    if (!it.isValidPhoneNumber()) {
+                        isPhoneNumberError.value = true
+                    }
+                }
             },
             label = { Text("Phone Number") },
             isError = isPhoneNumberError.value,
@@ -92,32 +112,33 @@ fun AddEmployeeScreen(
             Text(text = "Invalid phone number format", color = Color.Red)
         }
 
-        OutlinedTextField(
-            value = designationValue.value,
-            onValueChange = {
-                designationValue.value = it
-                isDesignationError.value = false
-            },
-            label = { Text("Designation") },
-            isError = isDesignationError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words,
-                imeAction = ImeAction.Next)
+        val designationList = listOf("Select Designation", "FrontEnd Developer", "Backend Developer", "iOS Developer", "Android Developer")
+
+
+        SampleSpinner(
+            designationValue,
+            "Designation",
+            designationList,
+            preselected = designationList[0],
+            onSelectionChanged = { selected -> /* do something with selected */ },
+            isDesignationError
         )
+
         if (isDesignationError.value) {
             Text(text = "Designation is required", color = Color.Red)
         }
 
-        OutlinedTextField(
-            value = departmentValue.value,
-            onValueChange = {
-                departmentValue.value = it
-                isDepartmentError.value = false
-            },
-            label = { Text("Department") },
-            isError = isDepartmentError.value,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Words,
-                imeAction = ImeAction.Done)
+        val departmentList = listOf("Select Department", "Android", "iOS", "Web")
+
+        SampleSpinner(
+            departmentValue,
+            "Department",
+            departmentList,
+            preselected = departmentList[0],
+            onSelectionChanged = { selected -> /* do something with selected */ },
+            isDepartmentError
         )
+
         if (isDepartmentError.value) {
             Text(text = "Department is required", color = Color.Red)
         }
@@ -158,10 +179,10 @@ fun AddEmployeeScreen(
                     if (!phoneNumberValue.value.isValidPhoneNumber()) {
                         isPhoneNumberError.value = true
                     }
-                    if (designationValue.value.isEmpty()) {
+                    if (designationValue.value.isEmpty() || designationValue.value.contains("Select Designation")) {
                         isDesignationError.value = true
                     }
-                    if (departmentValue.value.isEmpty()) {
+                    if (departmentValue.value.isEmpty() || departmentValue.value.contains("Select Department")) {
                         isDepartmentError.value = true
                     }
                 }
@@ -199,6 +220,11 @@ fun validateInputs(
     return true
 }
 
+fun isValidCharacters(input: String): Boolean {
+    val regex = Regex("^[a-zA-Z' ]+$")
+    return regex.matches(input)
+}
+
 // Extension functions to check email and phone number formats
 fun String.isValidEmail(): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
@@ -206,4 +232,60 @@ fun String.isValidEmail(): Boolean {
 
 fun String.isValidPhoneNumber(): Boolean {
     return android.util.Patterns.PHONE.matcher(this).matches() && length == 10
+}
+
+@Composable
+fun SampleSpinner(
+    value: MutableState<String>,
+    text: String,
+    list: List<String>,
+    preselected: String,
+    onSelectionChanged: (selection: String) -> Unit,
+    isError: MutableState<Boolean>
+) {
+
+    var selected by remember { mutableStateOf(preselected) }
+    var expanded by remember { mutableStateOf(false) } // initial value
+
+    Box {
+        Column {
+            OutlinedTextField(
+                value = (selected),
+                onValueChange = { },
+                label = { Text(text = text) },
+                trailingIcon = { Icon(Icons.Outlined.ArrowDropDown, null) },
+                readOnly = true
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                list.forEach { entry ->
+                    DropdownMenuItem(
+                        onClick = {
+                            selected = entry
+                            expanded = false
+                            value.value = entry
+                            isError.value = false
+                        },
+                        text = {
+                            Text(
+                                text = entry,
+                                modifier = Modifier.wrapContentWidth().align(Alignment.Start))
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(
+            modifier = Modifier
+                .matchParentSize()
+                .background(Color.Transparent)
+                .padding(10.dp)
+                .clickable(
+                    onClick = { expanded = !expanded }
+                )
+        )
+    }
 }

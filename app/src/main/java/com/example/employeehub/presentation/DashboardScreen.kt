@@ -75,7 +75,7 @@ fun DashboardScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Search by name") },
+                label = { Text("Search by name or number") },
                 modifier = Modifier.weight(1f),
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
@@ -102,7 +102,7 @@ fun DashboardScreen(
             }
         }
 
-        val filteredEmployees = employees.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        val filteredEmployees = employees.filter { it.name.contains(searchQuery, ignoreCase = true) || it.phone.contains(searchQuery) }
 
         Spacer(modifier = Modifier.height(16.dp))
 
